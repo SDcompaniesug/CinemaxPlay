@@ -19,8 +19,13 @@ jobs:
           rm -rf extracted
           chmod +x gradlew
 
-      - name: Remove local Android SDK override
-        run: rm -f local.properties
+      - name: Remove local Android SDK overrides
+        run: |
+          find . -type f -name 'local.properties' -delete
+          find . -type f -name 'gradle.properties' -print0 | while IFS= read -r -d '' file; do
+            sed -i '/android\.aapt2FromMavenOverride[[:space:]]*=/d' "$file"
+          done
+          rm -f "$HOME/.gradle/gradle.properties"
 
       - name: Set up Java 17
         uses: actions/setup-java@v4

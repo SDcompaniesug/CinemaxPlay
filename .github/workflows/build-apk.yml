@@ -1,0 +1,36 @@
+name: Build CinemaxPlay APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract Android project
+        run: |
+          unzip -q CinemaxPlay.zip -d extracted
+          cp -a extracted/CinemaxPlay/. .
+          rm -rf extracted
+          chmod +x gradlew
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: CinemaxPlay-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error

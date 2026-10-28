@@ -1,0 +1,38 @@
+name: Build CinemaxSD deployment bundle
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "cinemaxsd-api/**"
+      - ".github/workflows/build-cinemaxsd-bundle.yml"
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Install runtime dependencies and bundler
+        working-directory: cinemaxsd-api
+        run: |
+          npm install --omit=dev
+          npm install --no-save esbuild
+      - name: Bundle function and make ZIP
+        run: |
+          mkdir -p dist
+          ./cinemaxsd-api/node_modules/.bin/esbuild cinemaxsd-api/index.mjs --bundle --platform=node --target=node24 --format=esm --outfile=dist/index.mjs
+          cd dist
+          zip -9 cinemaxsd.zip index.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cinemaxsd-deployment-zip
+          path: dist/cinemaxsd.zip
+          if-no-files-found: error
+          retention-days: 2

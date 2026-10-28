@@ -7,7 +7,7 @@ on:
     paths:
       - ".github/workflows/sync-cinemaxsd-content.yml"
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "*/5 * * * *"
 
 permissions:
   contents: read

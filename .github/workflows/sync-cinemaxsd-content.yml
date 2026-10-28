@@ -1,0 +1,29 @@
+name: CinemaxSD Content Sync
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Sync MunoPix content into Neon
+        env:
+          SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
+          CINEMAXSD_API: https://br-steep-leaf-b59uvinr-cinemaxsd.compute.c-7.us-east-2.aws.neon.tech
+        run: |
+          test -n "$SYNC_TOKEN" || (echo "Missing repository secret SYNC_TOKEN" && exit 1)
+          curl --fail-with-body --silent --show-error \
+            --max-time 300 \
+            -X POST "$CINEMAXSD_API/api/sync" \
+            -H "X-Sync-Token: $SYNC_TOKEN" \
+            -H "Accept: application/json" \
+            -o response.json
+          cat response.json
+          node -e "const r=require('./response.json'); if(!r.success) process.exit(1)"

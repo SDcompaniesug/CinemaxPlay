@@ -8,7 +8,8 @@ Neon Functions API backed by Neon PostgreSQL. Imported content is served from th
 - `SYNC_TOKEN`: required secret for importing; send as `X-Sync-Token` or `Authorization: Bearer <token>`.
 
 ## Endpoints
-- `GET /` or `GET /health` — database health and saved content count.
+- `GET /` — displays catalogue JSON from the database (same response as `/api/content`, supports pagination and filters).
+- `GET /health` — database health and saved content count.
 - `GET /api/content?q=batman&type=movie&genre=Action&vj=...&tag=...&page=1&perPage=20` — local catalogue, search and filters.
 - `GET /api/content/:id` — one item by local ID or source ID.
 - `POST /api/sync` — imports/upserts all upstream pages; requires sync token.

@@ -1,0 +1,38 @@
+name: Deploy CinemaxSD API
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "cinemaxsd-api/**"
+      - ".github/workflows/deploy-cinemaxsd.yml"
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: cinemaxsd-api/package.json
+      - name: Install dependencies
+        working-directory: cinemaxsd-api
+        run: npm install --omit=dev
+      - name: Install Neon CLI
+        run: npm install --global neon
+      - name: Deploy function
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
+        run: |
+          test -n "$NEON_API_KEY" || (echo "Missing repository secret NEON_API_KEY" && exit 1)
+          test -n "$SYNC_TOKEN" || (echo "Missing repository secret SYNC_TOKEN" && exit 1)
+          neon functions deploy cinemaxsd --src cinemaxsd-api/index.mjs --project-id dry-fire-13288712 --branch-id br-steep-leaf-b59uvinr --runtime nodejs24 --env "SYNC_TOKEN=$SYNC_TOKEN"

@@ -2,6 +2,10 @@ name: CinemaxSD Content Sync
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/sync-cinemaxsd-content.yml"
   schedule:
     - cron: "*/15 * * * *"
 

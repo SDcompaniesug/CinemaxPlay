@@ -101,8 +101,10 @@ export default async function handler(req) {
     if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: { "access-control-allow-origin": "*", "access-control-allow-methods": "GET,POST,OPTIONS", "access-control-allow-headers": "content-type,authorization,x-sync-token" } });
     await ensureDb();
     const url = new URL(req.url);
-    const path = url.pathname.replace(/\/+$/, "") || "/";
-    if (path === "/" || path === "/health") {
+    let path = url.pathname.replace(/\/+$/, "") || "/";
+    // The public root displays catalogue JSON; /health is reserved for service status.
+    if (path === "/") path = "/api/content";
+    if (path === "/health") {
       const db = await pool.query("SELECT NOW() AS database_time, (SELECT COUNT(*) FROM public.cinemaxsd_content) AS content_count");
       return json({ success: true, service: "CinemaxSD", database: "connected", contentCount: Number(db.rows[0].content_count), databaseTime: db.rows[0].database_time });
     }

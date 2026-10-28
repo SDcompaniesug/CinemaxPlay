@@ -32,5 +32,5 @@ jobs:
         run: |
           test -n "$NEON_API_KEY" || (echo 'Missing GitHub Actions secret NEON_API_KEY' && exit 1)
           test -n "$CINEMAXSD_API_KEY" || (echo 'Missing GitHub Actions secret CINEMAXSD_API_KEY' && exit 1)
-          neon functions deploy cinemaxsd --project-id dry-fire-13288712 --branch-id br-steep-leaf-b59uvinr --src src/index.mjs --runtime nodejs24 --env "CINEMAXSD_API_KEY=$CINEMAXSD_API_KEY"
-          neon functions get cinemaxsd --project-id dry-fire-13288712 --branch-id br-steep-leaf-b59uvinr
+          neon functions deploy cinemaxsd --project-id dry-fire-13288712 --branch br-steep-leaf-b59uvinr --src src/index.mjs --runtime nodejs24 --env "CINEMAXSD_API_KEY=$CINEMAXSD_API_KEY"
+          neon functions get cinemaxsd --project-id dry-fire-13288712 --branch br-steep-leaf-b59uvinr

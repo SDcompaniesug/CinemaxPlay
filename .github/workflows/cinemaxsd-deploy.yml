@@ -1,0 +1,36 @@
+name: Deploy CinemaxSD API
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'cinemaxsd-api/**'
+      - '.github/workflows/cinemaxsd-deploy.yml'
+permissions:
+  contents: read
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install API dependencies
+        working-directory: cinemaxsd-api
+        run: npm install
+      - name: Verify source syntax
+        working-directory: cinemaxsd-api
+        run: node --check src/index.mjs
+      - name: Install Neon CLI
+        run: npm install --global neon
+      - name: Deploy function to Neon
+        working-directory: cinemaxsd-api
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          CINEMAXSD_API_KEY: ${{ secrets.CINEMAXSD_API_KEY }}
+        run: |
+          test -n "$NEON_API_KEY" || (echo 'Missing GitHub Actions secret NEON_API_KEY' && exit 1)
+          test -n "$CINEMAXSD_API_KEY" || (echo 'Missing GitHub Actions secret CINEMAXSD_API_KEY' && exit 1)
+          neon functions deploy cinemaxsd --project-id dry-fire-13288712 --branch-id br-steep-leaf-b59uvinr --src src/index.mjs --runtime nodejs24 --env "CINEMAXSD_API_KEY=$CINEMAXSD_API_KEY"
+          neon functions get cinemaxsd --project-id dry-fire-13288712 --branch-id br-steep-leaf-b59uvinr

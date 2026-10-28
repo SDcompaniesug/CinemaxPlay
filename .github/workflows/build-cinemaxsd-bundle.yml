@@ -27,7 +27,7 @@ jobs:
       - name: Bundle function and make ZIP
         run: |
           mkdir -p dist
-          ./cinemaxsd-api/node_modules/.bin/esbuild cinemaxsd-api/index.mjs --bundle --platform=node --target=node24 --format=esm --outfile=dist/index.mjs
+          ./cinemaxsd-api/node_modules/.bin/esbuild cinemaxsd-api/index.mjs --bundle --minify --platform=node --target=node24 --format=esm --outfile=dist/index.mjs
           cd dist
           zip -9 cinemaxsd.zip index.mjs
       - uses: actions/upload-artifact@v4

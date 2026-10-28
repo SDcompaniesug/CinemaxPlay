@@ -1,14 +1,18 @@
 # CinemaxSD API
 
-Persistent media catalogue API backed by Neon PostgreSQL. Imports MunoPix content and serves the saved copy if the upstream API is offline.
+Neon Functions API backed by Neon PostgreSQL. Imported content is served from the local database, so catalogue browsing does not depend on MunoPix remaining online.
 
-Routes:
-- GET / or /health — health check
-- GET /api/content?page=1&perPage=20 — paginated catalogue
-- GET /api/content?q=batman&type=movie&genre=Action&tag=popular — search/filter
-- GET /api/content/:id — one item by local ID or upstream source ID
-- GET /api/filters — genres, tags and years
-- GET /api/stats — catalogue totals and last sync
-- POST /api/sync — import/update; requires X-API-Key or Authorization: Bearer
+## Configuration
+- `DATABASE_URL`: injected automatically by Neon Functions.
+- `MUNOPIX_API_URL`: optional upstream URL; defaults to `https://85.190.254.61/munopix/browse_api.php`.
+- `SYNC_TOKEN`: required secret for importing; send as `X-Sync-Token` or `Authorization: Bearer <token>`.
 
-Set DATABASE_URL (Neon injects this on Neon Functions), CINEMAXSD_API_KEY (a long random secret), and optionally MUNOPIX_API_URL and CORS_ORIGIN. The table and index are created automatically. Upserts avoid duplicates. POST /api/sync accepts JSON such as {"perPage":100,"maxPages":100}. It stores metadata and stream URLs, not video files; upstream video links can still expire or stop working if their host goes offline.
+## Endpoints
+- `GET /` or `GET /health` — database health and saved content count.
+- `GET /api/content?q=batman&type=movie&genre=Action&vj=...&tag=...&page=1&perPage=20` — local catalogue, search and filters.
+- `GET /api/content/:id` — one item by local ID or source ID.
+- `POST /api/sync` — imports/upserts all upstream pages; requires sync token.
+- `GET /api/sync/status` — latest import status.
+
+## Deployment
+The workflow `.github/workflows/deploy-cinemaxsd.yml` deploys the function to the configured Neon project/branch. Configure repository Actions secrets `NEON_API_KEY` and `SYNC_TOKEN`, then run **Actions → Deploy CinemaxSD API → Run workflow**. The workflow builds the dependency bundle using the Neon CLI.
